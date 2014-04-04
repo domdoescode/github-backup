@@ -13,3 +13,9 @@ org, and auth details.
 `node backup`
 
 Done!
+
+## Issues
+
+Currently you can only backup gists for a single user; the one that is
+authenticated. This will be changed in future, however only public gists will be
+backed up unless an authentication token is provided.

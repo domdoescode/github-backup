@@ -13,4 +13,5 @@ module.exports =
     , backup: [ 'all' ]
     }
   ]
+, destination: '/tmp/backup'
 }
