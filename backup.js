@@ -47,23 +47,30 @@ function backupRepos(org) {
     if (error) throw error
 
     async.each(repos, function (repo, callback) {
-      childLogger.info('Downloading ' + repo.full_name)
-      var repoDestination = properties.destination + 'repos/' + repo.name + '.git'
-        , command = 'git clone --mirror ' + repo.ssh_url + ' ' + repoDestination
 
-      childLogger.debug('Executing command ' + command)
-      cp.exec(command, function (error, stdout, stderr) {
-        childLogger.debug('stdout ' + stdout)
-        childLogger.debug('stderr ' + stderr)
-
-        if (error) return callback(error)
-
-        if (repo.has_wiki) {
-          console.log(repo.has_wiki)
-          backupWiki(repo, callback)
-        } else {
-          return callback(error)
+      async.parallel([
+        function (callback) {
+          if (repo.has_wiki) {
+            backupWiki(repo, callback)
+          } else {
+            return callback(error)
+          }
         }
+      , function (callback) {
+          childLogger.info('Downloading ' + repo.full_name)
+          var repoDestination = properties.destination + 'repos/' + repo.name + '.git'
+            , command = 'git clone --mirror ' + repo.ssh_url + ' ' + repoDestination
+
+          childLogger.debug('Executing command ' + command)
+          cp.exec(command, function (error, stdout, stderr) {
+            childLogger.debug('stdout ' + stdout)
+            childLogger.debug('stderr ' + stderr)
+
+            callback(error)
+          })
+        }
+      ], function (error) {
+        callback(error)
       })
     })
   })
